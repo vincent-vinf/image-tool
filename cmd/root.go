@@ -5,7 +5,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"image-tool/pkg/image"
 	"image-tool/pkg/utils"
 )
 
@@ -13,7 +12,13 @@ var (
 	logger        = utils.GetLogger()
 	outputDir     string
 	imageListPath string
-	imageHandler  image.Handler
+	platform      string
+
+	srcUsername string
+	srcPassword string
+
+	dstUsername string
+	dstPassword string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -34,12 +39,14 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVarP(&outputDir, "dir", "d", "images", "output dir")
-	_ = viper.BindPFlag("dir", rootCmd.PersistentFlags().Lookup("dir"))
-
 	rootCmd.PersistentFlags().StringVarP(&imageListPath, "images", "i", "images.txt", "images.txt path")
-	_ = viper.BindPFlag("images", rootCmd.Flags().Lookup("images"))
+	rootCmd.PersistentFlags().StringVar(&platform, "platform", "linux/amd64", "image platform")
 
-	imageHandler = image.DockerHandler{}
+	rootCmd.PersistentFlags().StringVarP(&srcUsername, "src-username", "u", "", "source username")
+	rootCmd.PersistentFlags().StringVarP(&srcPassword, "src-password", "p", "", "source password")
+
+	rootCmd.PersistentFlags().StringVar(&dstUsername, "dst-username", "", "destination username")
+	rootCmd.PersistentFlags().StringVar(&dstPassword, "dst-password", "", "destination password")
 }
 
 // initConfig reads in config file and ENV variables if set.

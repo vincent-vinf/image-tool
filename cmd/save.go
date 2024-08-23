@@ -48,8 +48,8 @@ var saveCmd = &cobra.Command{
 				logger.Infof("image %s already exist", i)
 				continue
 			}
-
-			err := PullSave(i, path.Join(outputDir, image.ConvertToFilename(i)+".tar"), "")
+			tarPath := path.Join(outputDir, image.ConvertToFilename(i)+".tar")
+			err := image.PullImageToTar(cmd.Context(), i, platform, srcUsername, srcPassword, tarPath)
 			if err != nil {
 				return err
 			}
@@ -61,20 +61,4 @@ var saveCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(saveCmd)
-	// saveCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-func PullSave(imageURL, dst, platform string) error {
-	logger.Infof("start save image: %s", imageURL)
-	err := imageHandler.Pull(imageURL, platform)
-	if err != nil {
-		return fmt.Errorf("fail to pull image: %w", err)
-	}
-	err = imageHandler.Save(imageURL, dst)
-	if err != nil {
-		return fmt.Errorf("fail to save image: %w", err)
-	}
-	logger.Infof("successfully saved image: %s to %s\n", imageURL, dst)
-
-	return nil
 }

@@ -4,33 +4,39 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"image-tool/pkg/input"
+)
+
+var (
+	registry string
 )
 
 // loadCmd represents the load command
 var loadCmd = &cobra.Command{
 	Use:   "load",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "load image from image tar to registry",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if registry == "" {
+			return fmt.Errorf("--registry is required")
+		}
+		var (
+			images []string
+			err    error
+		)
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("load called")
+		if imageListPath != "" {
+			images, err = input.ReadImagesFile(imageListPath)
+			if err != nil {
+				return fmt.Errorf("could not read the images file: %w", err)
+			}
+			logger.Infof("found %d images for file %s", len(images), imageListPath)
+		}
+
+		return nil
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(loadCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// loadCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// loadCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	loadCmd.PersistentFlags().StringVarP(&registry, "registry", "r", "", "example: harbor.qkd.cn:8443/library")
 }

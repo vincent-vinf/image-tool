@@ -1,4 +1,4 @@
-package copy
+package image
 
 import (
 	"context"
@@ -10,6 +10,11 @@ import (
 	"github.com/containers/image/v5/signature"
 	"github.com/containers/image/v5/transports/alltransports"
 	"github.com/containers/image/v5/types"
+	"image-tool/pkg/utils"
+)
+
+var (
+	logger = utils.GetLogger()
 )
 
 func PullImageToTar(ctx context.Context, srcImage, platform, username, passwd, dstTar string) error {
@@ -69,11 +74,14 @@ func NewRegistryImageNode(imageKey, platform, username, passwd string) (ImageNod
 	}
 	if platform != "" {
 		parts := strings.Split(platform, "/")
-		if len(parts) != 2 {
+
+		if len(parts) < 2 {
 			return ImageNode{}, fmt.Errorf("invalid platform format: %s", platform)
 		}
-		src.Platform.OS = parts[0]
-		src.Platform.Arch = parts[1]
+		src.Platform = &Platform{
+			Arch: parts[1],
+			OS:   parts[0],
+		}
 	}
 	if username != "" && passwd != "" {
 		src.DockerAuth = &types.DockerAuthConfig{
@@ -86,12 +94,14 @@ func NewRegistryImageNode(imageKey, platform, username, passwd string) (ImageNod
 }
 
 type ImageNode struct {
-	ImageKey string
-	Platform *struct {
-		Arch string
-		OS   string
-	}
+	ImageKey   string
+	Platform   *Platform
 	DockerAuth *types.DockerAuthConfig
+}
+
+type Platform struct {
+	Arch string
+	OS   string
 }
 
 func (n ImageNode) ToSystemContext() *types.SystemContext {
@@ -111,6 +121,7 @@ func (n ImageNode) ToSystemContext() *types.SystemContext {
 }
 
 func copyImage(ctx context.Context, src, dst ImageNode) error {
+	logger.Infof("copy image from %s to %s", src.ImageKey, dst.ImageKey)
 	policy := &signature.Policy{Default: []signature.PolicyRequirement{signature.NewPRInsecureAcceptAnything()}}
 	policyContext, err := signature.NewPolicyContext(policy)
 	if err != nil {

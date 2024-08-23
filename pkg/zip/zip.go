@@ -2,11 +2,12 @@ package zip
 
 import (
 	"bytes"
-	"compress/gzip"
 	"encoding/binary"
 	"fmt"
 	"io"
 	"os"
+
+	"github.com/klauspost/pgzip"
 )
 
 type Compression int
@@ -93,6 +94,38 @@ func zstdMatcher() matcher {
 	}
 }
 
+func Compress(src, dst string, compression Compression) error {
+	file, err := os.Open(src)
+	if err != nil {
+		return fmt.Errorf("failed to open source file: %v", err)
+	}
+	defer file.Close()
+
+	// 创建目标文件
+	outFile, err := os.Create(dst)
+	if err != nil {
+		return fmt.Errorf("failed to create destination file: %v", err)
+	}
+	defer outFile.Close()
+
+	var writer io.WriteCloser
+	switch compression {
+	case Gzip:
+		writer = pgzip.NewWriter(outFile)
+	default:
+		return fmt.Errorf("unsupported compression: %v", compression)
+	}
+	defer writer.Close()
+
+	// 将解压缩的数据写入到目标文件
+	_, err = io.Copy(writer, file)
+	if err != nil {
+		return fmt.Errorf("failed to write compressed data to file: %v", err)
+	}
+
+	return nil
+}
+
 func Decompress(src, dst string, compression Compression) error {
 	file, err := os.Open(src)
 	if err != nil {
@@ -103,7 +136,7 @@ func Decompress(src, dst string, compression Compression) error {
 	var reader io.ReadCloser
 	switch compression {
 	case Gzip:
-		reader, err = gzip.NewReader(file)
+		reader, err = pgzip.NewReader(file)
 		if err != nil {
 			return fmt.Errorf("failed to create gzip reader: %v", err)
 		}
