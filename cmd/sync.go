@@ -2,22 +2,71 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
+	"image-tool/pkg/image"
+	"image-tool/pkg/input"
+	"image-tool/pkg/output"
 )
 
 // syncCmd represents the sync command
 var syncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	RunE: func(cmd *cobra.Command, args []string) error {
+		images, err := input.ReadImagesFile(imageListPath)
+		if err != nil {
+			return fmt.Errorf("could not read the images file: %w", err)
+		}
+		logger.Infof("found %d images from file %s", len(images), imageListPath)
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("sync called")
+		imageFiles, err := output.ReadImageFromDir(outputDir)
+		if err != nil {
+			return fmt.Errorf("could not read the images directory: %w", err)
+		}
+		logger.Infof("found %d image file in %s", len(imageFiles), outputDir)
+
+		diff := image.GetDiff(images, imageFiles)
+		logger.Infof("will pull %d image\n%s", len(diff.Add), strings.Join(diff.Add, "\n"))
+		var delImages []string
+		for _, i := range diff.Del {
+			delImages = append(delImages, i.URL)
+		}
+		logger.Infof("will delete %d image\n%s", len(diff.Del), strings.Join(delImages, "\n"))
+
+		err = os.MkdirAll(outputDir, os.ModePerm)
+		if err != nil {
+			return fmt.Errorf("could not create the output directory: %w", err)
+		}
+
+		errMap := make(map[string]error)
+		for _, i := range diff.Add {
+			err := saveImage(cmd.Context(), i)
+			if err != nil {
+				errMap[i] = err
+			}
+		}
+		for _, i := range diff.Del {
+			for _, f := range i.Files {
+				err := os.Remove(f.Path)
+				if err != nil {
+					errMap[i.URL] = err
+				}
+			}
+		}
+
+		if len(errMap) > 0 {
+			for i, err := range errMap {
+				logger.Errorf("failed to sync %s, reason: %v", i, err)
+			}
+			return fmt.Errorf("failed to sync the %d images", len(errMap))
+		}
+
+		logger.Infof("successfully sync %d images, ", len(images))
+
+		return nil
 	},
 }
 

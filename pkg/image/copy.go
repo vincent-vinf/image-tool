@@ -29,7 +29,17 @@ func PullImageToTar(ctx context.Context, srcImage, platform, username, passwd, d
 
 func LoadImageToDocker(ctx context.Context, srcTar string, dstDaemon string) error {
 	src := NewImageNode(tarImageKey(srcTar))
-	dst := NewImageNode(daemonImageKey(srcTar))
+	dst := NewImageNode(daemonImageKey(dstDaemon))
+
+	return copyImage(ctx, src, dst)
+}
+
+func PushImageToRegistry(ctx context.Context, srcTar string, registry string, platform, dstUsername, dstPasswd string) error {
+	src := NewImageNode(tarImageKey(srcTar))
+	dst, err := NewRegistryImageNode(registryImageKey(registry), platform, dstUsername, dstPasswd)
+	if err != nil {
+		return err
+	}
 
 	return copyImage(ctx, src, dst)
 }
@@ -37,6 +47,7 @@ func LoadImageToDocker(ctx context.Context, srcTar string, dstDaemon string) err
 func CopyBetweenRegistry(ctx context.Context,
 	srcImage, platform, srcUsername, srcPasswd string,
 	dstImage, dstUsername, dstPasswd string,
+	authFilePath string,
 ) error {
 	src, err := NewRegistryImageNode(registryImageKey(srcImage), platform, srcUsername, srcPasswd)
 	if err != nil {
@@ -94,9 +105,10 @@ func NewRegistryImageNode(imageKey, platform, username, passwd string) (ImageNod
 }
 
 type ImageNode struct {
-	ImageKey   string
-	Platform   *Platform
-	DockerAuth *types.DockerAuthConfig
+	ImageKey     string
+	Platform     *Platform
+	DockerAuth   *types.DockerAuthConfig
+	AuthFilePath string
 }
 
 type Platform struct {
@@ -116,6 +128,7 @@ func (n ImageNode) ToSystemContext() *types.SystemContext {
 	if n.DockerAuth != nil {
 		c.DockerAuthConfig = n.DockerAuth
 	}
+	c.AuthFilePath = n.AuthFilePath
 
 	return c
 }

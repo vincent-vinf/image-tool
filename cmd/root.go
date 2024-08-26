@@ -13,12 +13,16 @@ var (
 	outputDir     string
 	imageListPath string
 	platform      string
+	autoZip       bool
 
-	srcUsername string
-	srcPassword string
+	username string
+	password string
 
-	dstUsername string
-	dstPassword string
+	//srcUsername string
+	//srcPassword string
+	//
+	//dstUsername string
+	//dstPassword string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -39,14 +43,18 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVarP(&outputDir, "dir", "d", "images", "output dir")
-	rootCmd.PersistentFlags().StringVarP(&imageListPath, "images", "i", "images.txt", "images.txt path")
+	rootCmd.PersistentFlags().StringVarP(&imageListPath, "images", "i", "", "images.txt path")
 	rootCmd.PersistentFlags().StringVar(&platform, "platform", "linux/amd64", "image platform")
+	rootCmd.PersistentFlags().BoolVar(&autoZip, "zip", true, "automatically compress image tar using pigz")
 
-	rootCmd.PersistentFlags().StringVarP(&srcUsername, "src-username", "u", "", "source username")
-	rootCmd.PersistentFlags().StringVarP(&srcPassword, "src-password", "p", "", "source password")
+	//rootCmd.PersistentFlags().StringVar(&srcUsername, "src-username", "", "source username")
+	//rootCmd.PersistentFlags().StringVar(&srcPassword, "src-password", "", "source password")
+	//
+	//rootCmd.PersistentFlags().StringVar(&dstUsername, "dst-username", "", "destination username")
+	//rootCmd.PersistentFlags().StringVar(&dstPassword, "dst-password", "", "destination password")
 
-	rootCmd.PersistentFlags().StringVar(&dstUsername, "dst-username", "", "destination username")
-	rootCmd.PersistentFlags().StringVar(&dstPassword, "dst-password", "", "destination password")
+	rootCmd.PersistentFlags().StringVarP(&username, "username", "u", "", "username")
+	rootCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "password")
 }
 
 // initConfig reads in config file and ENV variables if set.
