@@ -29,7 +29,6 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   "image-tool",
 	Short: "A brief description of your application",
-	// Run: func(cmd *cobra.Command, args []string) { },
 }
 
 func Execute() {
@@ -53,8 +52,8 @@ func init() {
 	//rootCmd.PersistentFlags().StringVar(&dstUsername, "dst-username", "", "destination username")
 	//rootCmd.PersistentFlags().StringVar(&dstPassword, "dst-password", "", "destination password")
 
-	rootCmd.PersistentFlags().StringVarP(&username, "username", "u", "", "username")
-	rootCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "password")
+	rootCmd.PersistentFlags().StringVarP(&username, "username", "u", "", "docker registry username")
+	rootCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "docker registry password")
 }
 
 // initConfig reads in config file and ENV variables if set.

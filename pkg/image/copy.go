@@ -165,3 +165,20 @@ func copyImage(ctx context.Context, src, dst ImageNode) error {
 
 	return nil
 }
+
+func CheckImageTar(ctx context.Context, tarPath string) error {
+	srcRef, err := alltransports.ParseImageName(tarImageKey(tarPath))
+	if err != nil {
+		return err
+	}
+	img, err := srcRef.NewImageSource(ctx, &types.SystemContext{})
+	if err != nil {
+		return err
+	}
+	_, _, err = img.GetManifest(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

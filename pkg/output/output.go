@@ -31,6 +31,10 @@ func ReadImageFromDir(dir string) ([]*image.TarImage, error) {
 		if info.IsDir() {
 			return nil
 		}
+		if strings.HasPrefix(info.Name(), ".") {
+			// Ignore hidden files
+			return nil
+		}
 		i, err := filenameToImageURL(path)
 		if err != nil {
 			logger.Warnf("mismatched formats to read file %s: %s", path, err)

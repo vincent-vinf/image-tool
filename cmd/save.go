@@ -20,19 +20,20 @@ var saveCmd = &cobra.Command{
 	Use:   "save",
 	Short: "Download the images listed in image.txt to the directory",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		argImages, err := readImagesFromArgs(args)
+		images, err := readImagesFromArgs(args)
 		if err != nil {
 			return err
 		}
-		logger.Infof("found %d images from args", len(argImages))
+		logger.Infof("found %d images from args", len(images))
 
-		fileImages, err := input.ReadImagesFile(imageListPath)
-		if err != nil {
-			return fmt.Errorf("could not read the images file: %w", err)
+		if imageListPath != "" {
+			fileImages, err := input.ReadImagesFile(imageListPath)
+			if err != nil {
+				return fmt.Errorf("could not read the images file: %w", err)
+			}
+			logger.Infof("found %d images from file %s", len(fileImages), imageListPath)
+			images = append(images, fileImages...)
 		}
-		logger.Infof("found %d images from file %s", len(fileImages), imageListPath)
-
-		images := append(fileImages, argImages...)
 
 		imageFiles, err := output.ReadImageFromDir(outputDir)
 		if err != nil {
