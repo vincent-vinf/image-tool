@@ -10,7 +10,7 @@ import (
 	"github.com/containers/image/v5/signature"
 	"github.com/containers/image/v5/transports/alltransports"
 	"github.com/containers/image/v5/types"
-	"image-tool/pkg/utils"
+	"github.com/vincent-vinf/image-tool/pkg/utils"
 )
 
 var (

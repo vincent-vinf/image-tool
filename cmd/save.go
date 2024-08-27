@@ -8,11 +8,11 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"image-tool/pkg/image"
-	"image-tool/pkg/input"
-	"image-tool/pkg/output"
-	"image-tool/pkg/utils"
-	"image-tool/pkg/zip"
+	"github.com/vincent-vinf/image-tool/pkg/image"
+	"github.com/vincent-vinf/image-tool/pkg/input"
+	"github.com/vincent-vinf/image-tool/pkg/output"
+	"github.com/vincent-vinf/image-tool/pkg/utils"
+	"github.com/vincent-vinf/image-tool/pkg/zip"
 )
 
 // saveCmd represents the save command

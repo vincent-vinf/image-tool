@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"image-tool/pkg/utils"
+	"github.com/vincent-vinf/image-tool/pkg/utils"
 )
 
 func ReadImagesFile(file string) ([]string, error) {

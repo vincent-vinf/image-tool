@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"image-tool/pkg/image"
-	"image-tool/pkg/input"
-	"image-tool/pkg/output"
+	"github.com/vincent-vinf/image-tool/pkg/image"
+	"github.com/vincent-vinf/image-tool/pkg/input"
+	"github.com/vincent-vinf/image-tool/pkg/output"
 )
 
 // syncCmd represents the sync command
@@ -16,6 +16,9 @@ var syncCmd = &cobra.Command{
 	Use:   "sync",
 	Short: "A brief description of your command",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if len(args) > 0 {
+			logger.Warnf("args will be ignored")
+		}
 		images, err := input.ReadImagesFile(imageListPath)
 		if err != nil {
 			return fmt.Errorf("could not read the images file: %w", err)

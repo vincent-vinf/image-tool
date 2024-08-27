@@ -1,6 +1,6 @@
 package main
 
-import "image-tool/cmd"
+import "github.com/vincent-vinf/image-tool/cmd"
 
 func main() {
 	cmd.Execute()

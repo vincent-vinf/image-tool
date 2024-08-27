@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"image-tool/pkg/output"
+	"github.com/vincent-vinf/image-tool/pkg/output"
 )
 
 // cleanCmd represents the clean command

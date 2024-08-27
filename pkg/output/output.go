@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"image-tool/pkg/image"
-	"image-tool/pkg/utils"
-	"image-tool/pkg/zip"
+	"github.com/vincent-vinf/image-tool/pkg/image"
+	"github.com/vincent-vinf/image-tool/pkg/utils"
+	"github.com/vincent-vinf/image-tool/pkg/zip"
 )
 
 var (

@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"image-tool/pkg/utils"
+	"github.com/vincent-vinf/image-tool/pkg/utils"
 )
 
 var (

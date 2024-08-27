@@ -3,7 +3,7 @@ package image
 import (
 	"strings"
 
-	"image-tool/pkg/zip"
+	"github.com/vincent-vinf/image-tool/pkg/zip"
 )
 
 // ConvertToFilename converts a Docker image name to a valid filename
