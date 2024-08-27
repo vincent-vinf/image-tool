@@ -18,7 +18,8 @@ before:
 
 dockers:
   - image_templates:
-      - registry.cn-hangzhou.aliyuncs.com/adpc/{{.ProjectName}}/v{{ .Major }}.{{ .Minor }}
+      - registry.cn-hangzhou.aliyuncs.com/adpc/{{.ProjectName}}:v{{ .Major }}.{{ .Minor }}
+    skip_push: false
 
 builds:
   - env:
