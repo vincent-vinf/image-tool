@@ -14,7 +14,6 @@ before:
   hooks:
     - go mod tidy
     - go mod vendor
-    - go generate ./...
 
 dockers:
   - image_templates:

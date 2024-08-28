@@ -14,6 +14,8 @@
 > 若镜像需要代理才能访问，可以在执行命令前配置环境变量
 >
 > export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
+>
+> 若二进制在主机上出现兼容性问题，则可以使用docker镜像registry.cn-hangzhou.aliyuncs.com/adpc/image-tool:v0.2-amd64
 
 ### image.txt
 
