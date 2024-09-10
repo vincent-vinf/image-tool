@@ -29,6 +29,47 @@ registry.cn-hangzhou.aliyuncs.com/qkd-system/vc-scheduler:v1.8.1
 
 按行分隔的镜像列表，使用#作为注释
 
+### load
+
+将目录中的镜像文件上传到指定的仓库
+
+支持的参数为：
+
+```
+  -r, --registry string   example: harbor.qkd.cn:8443/library
+
+  -d, --dir string        output dir (default "images")
+  -i, --images string     images.txt path
+  -p, --password string   docker registry password
+  -u, --username string   docker registry username
+  --daemon            just load image to local daemon
+```
+
+* -r 指定需要推送的仓库，例如harbor.qkd.cn:8443/library，其中library是harbor的项目名称
+* -d 指定镜像文件所在的目录
+* -i image.txt文件，可以不指定
+* -u 指定镜像仓库用户名
+* -p 指定镜像仓库密码
+* --daemon 是否只将镜像load到本机的docker，而不推送到仓库
+
+#### 示例
+
+```sh
+# 只有images.txt中指定的镜像会被推送到仓库
+image-tool load -d ~/Downloads/test-images -i tmp/images.txt -r <registry>/library -u <username> -p <passwd>
+# 也可以通过命令行参数直接指定需要推送到镜像，可以和images.txt一起使用，2者会被合并
+image-tool load -d ~/Downloads/test-images -i tmp/images.txt -r <registry>/library -u <username> -p <passwd> nginx:latest
+# 可以不指定任何镜像，程序会将目录中所有的tar文件都推送到仓库
+image-tool load -d ~/Downloads/test-images -r <registry>/library -u <username> -p <passwd>
+# 有时候我们需要将镜像直接load到本机的docker，而不推送到仓库，可以指定--daemon
+# 下面这个命令会将tmp目录下的镜像都load到本机docker，并tag为10.10.103.103:3333/library/<name>:<tag>
+image-tool load -d tmp --daemon -r 10.10.103.103:3333/library
+# 如果不指定-r参数，则维持镜像原本的tag
+image-tool load -d tmp --daemon
+```
+
+
+
 ### save
 
 将镜像拉取下来，并作为tar包保存到指定目录当中。
@@ -68,37 +109,6 @@ image-tool save -d test-images -i images.txt image-tool:v0.1.0
 image-tool sync -d test-images -i images.txt -u <username> -p <passwd> --platform=linux/arm64
 ```
 
-### load
-
-将目录中的镜像文件上传到指定的仓库
-
-支持的参数为：
-
-```
-  -r, --registry string   example: harbor.qkd.cn:8443/library
-
-  -d, --dir string        output dir (default "images")
-  -i, --images string     images.txt path
-  -p, --password string   docker registry password
-  -u, --username string   docker registry username
-```
-
-* -r 指定需要推送的仓库，例如harbor.qkd.cn:8443/library，其中library是harbor的项目名称
-* -d 指定镜像文件所在的目录
-* -i image.txt文件，可以不指定
-* -u 指定镜像仓库用户名
-* -p 指定镜像仓库密码
-
-### 示例
-
-```sh
-# 只有images.txt中指定的镜像会被推送到仓库
-image-tool load -d ~/Downloads/test-images -i tmp/images.txt -r <registry>/library -u <username> -p <passwd>
-# 也可以通过命令行参数直接指定需要推送到镜像，可以和images.txt一起使用，2者会被合并
-image-tool load -d ~/Downloads/test-images -i tmp/images.txt -r <registry>/library -u <username> -p <passwd> nginx:latest
-# 可以不指定任何镜像，程序会将目录中所有的tar文件都推送到仓库
-image-tool load -d ~/Downloads/test-images -r <registry>/library -u <username> -p <passwd>
-```
 
 ## todo
 
