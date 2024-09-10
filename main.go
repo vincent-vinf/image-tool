@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/vincent-vinf/image-tool/cmd"
-	_ "go.uber.org/automaxprocs"
+	//_ "go.uber.org/automaxprocs"
 )
 
 func main() {

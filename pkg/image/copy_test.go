@@ -6,7 +6,9 @@ import (
 )
 
 func TestCheck(t *testing.T) {
-	err := check(context.Background(), "/Users/vincent/Downloads/test-images/registry.cn-hangzhou.aliyuncs.com#qkd-system#tensorboard+v0.1.0.tar")
+	src := ImageNode{ImageKey: "docker-archive:/Users/vincent/Downloads/test-images/registry.cn-hangzhou.aliyuncs.com#qkd-system#workflow-controller+v3.5.3.tar"}
+	dst := ImageNode{ImageKey: "docker-daemon:registry.cn-hangzhou.aliyuncs.com/qkd-system/workflow-controller:v3.5.3"}
+	err := copyImage(context.Background(), src, dst)
 	if err != nil {
 		t.Fatal(err)
 	}

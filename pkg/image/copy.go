@@ -29,7 +29,7 @@ func PullImageToTar(ctx context.Context, srcImage, platform, username, passwd, d
 
 func LoadImageToDocker(ctx context.Context, srcTar string, dstDaemon string) error {
 	src := NewImageNode(tarImageKey(srcTar))
-	dst := NewImageNode(daemonImageKey(dstDaemon))
+	dst := NewImageNode(dockerDaemonImageKey(dstDaemon))
 
 	return copyImage(ctx, src, dst)
 }
@@ -47,7 +47,6 @@ func PushImageToRegistry(ctx context.Context, srcTar string, registry string, pl
 func CopyBetweenRegistry(ctx context.Context,
 	srcImage, platform, srcUsername, srcPasswd string,
 	dstImage, dstUsername, dstPasswd string,
-	authFilePath string,
 ) error {
 	src, err := NewRegistryImageNode(registryImageKey(srcImage), platform, srcUsername, srcPasswd)
 	if err != nil {
@@ -69,7 +68,7 @@ func tarImageKey(s string) string {
 	return fmt.Sprintf("docker-archive:%s", s)
 }
 
-func daemonImageKey(s string) string {
+func dockerDaemonImageKey(s string) string {
 	return fmt.Sprintf("docker-daemon:%s", s)
 }
 

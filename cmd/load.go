@@ -16,6 +16,7 @@ import (
 
 var (
 	registry string
+	toDaemon bool
 )
 
 // loadCmd represents the load command
@@ -23,7 +24,7 @@ var loadCmd = &cobra.Command{
 	Use:   "load",
 	Short: "load image from image tar to registry",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if registry == "" {
+		if !toDaemon && registry == "" {
 			return fmt.Errorf("--registry is required")
 		}
 
@@ -53,7 +54,7 @@ var loadCmd = &cobra.Command{
 		if len(images) == 0 {
 			logger.Infof("will load all images in %s", outputDir)
 			for _, image := range imageFiles {
-				err := loadImage(cmd.Context(), image, registry)
+				err := loadImage(cmd.Context(), image, registry, toDaemon)
 				if err != nil {
 					errMap[image.URL] = err
 				}
@@ -61,7 +62,7 @@ var loadCmd = &cobra.Command{
 		} else {
 			diff := image.GetDiff(images, imageFiles)
 			for _, image := range diff.Exists {
-				err := loadImage(cmd.Context(), image, registry)
+				err := loadImage(cmd.Context(), image, registry, toDaemon)
 				if err != nil {
 					errMap[image.URL] = err
 				}
@@ -88,19 +89,32 @@ var loadCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(loadCmd)
 	loadCmd.PersistentFlags().StringVarP(&registry, "registry", "r", "", "example: harbor.qkd.cn:8443/library")
+	loadCmd.PersistentFlags().BoolVar(&toDaemon, "daemon", false, "just load image to local daemon")
 }
 
-func loadImage(ctx context.Context, i *image.TarImage, newRegistry string) error {
+func loadImage(ctx context.Context, i *image.TarImage, newRegistry string, toDaemon bool) error {
 	tarPath, err := gunzipImage(i)
 	if err != nil {
 		return err
 	}
-	sp := strings.Split(i.URL, "/")
-	newURL := fmt.Sprintf("%s/%s", newRegistry, sp[len(sp)-1])
-	err = image.PushImageToRegistry(ctx, tarPath, newURL, platform, username, password)
+
+	newURL := i.URL
+
+	if newRegistry != "" {
+		sp := strings.Split(i.URL, "/")
+		newURL = fmt.Sprintf("%s/%s", newRegistry, sp[len(sp)-1])
+	}
+
+	if toDaemon {
+		err = image.LoadImageToDocker(ctx, tarPath, newURL)
+	} else {
+		err = image.PushImageToRegistry(ctx, tarPath, newURL, platform, username, password)
+	}
+
 	if err != nil {
 		return fmt.Errorf("could not load the image: %w", err)
 	}
+
 	return nil
 }
 
