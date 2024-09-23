@@ -4,6 +4,7 @@ go 1.22
 
 require (
 	github.com/containers/image/v5 v5.32.2
+	github.com/go-jose/go-jose/v4 v4.0.2
 	github.com/klauspost/pgzip v1.2.6
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
@@ -35,7 +36,6 @@ require (
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
-	github.com/go-jose/go-jose/v4 v4.0.2 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/analysis v0.23.0 // indirect

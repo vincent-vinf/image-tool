@@ -5,10 +5,20 @@ import (
 	"testing"
 )
 
+func TestCopy(t *testing.T) {
+	src, err := NewRegistryImageNode("docker://docker.io/calico/node:master", "linux/arm64", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	dst := ImageNode{ImageKey: "docker-archive:/Users/vincent/Downloads/docker.io#calico#node+v3.20.6.tar"}
+	err = copyImage(context.Background(), src, dst)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestCheck(t *testing.T) {
-	src := ImageNode{ImageKey: "docker-archive:/Users/vincent/Downloads/test-images/registry.cn-hangzhou.aliyuncs.com#qkd-system#workflow-controller+v3.5.3.tar"}
-	dst := ImageNode{ImageKey: "docker-daemon:registry.cn-hangzhou.aliyuncs.com/qkd-system/workflow-controller:v3.5.3"}
-	err := copyImage(context.Background(), src, dst)
+	err := CheckImageTar(context.Background(), "/Users/vincent/Downloads/docker.io#calico#node+v3.20.6.tar", "linux", "amd64")
 	if err != nil {
 		t.Fatal(err)
 	}

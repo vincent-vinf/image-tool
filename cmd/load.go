@@ -102,7 +102,7 @@ func loadImage(ctx context.Context, i *image.TarImage, newRegistry string, toDae
 
 	if newRegistry != "" {
 		sp := strings.Split(i.URL, "/")
-		newURL = fmt.Sprintf("%s/%s", newRegistry, sp[len(sp)-1])
+		newURL = fmt.Sprintf("%s/%s", strings.TrimRight(newRegistry, "/"), sp[len(sp)-1])
 	}
 
 	if toDaemon {

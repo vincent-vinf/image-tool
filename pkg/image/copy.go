@@ -3,13 +3,16 @@ package image
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
 	"github.com/containers/image/v5/copy"
+	"github.com/containers/image/v5/manifest"
 	"github.com/containers/image/v5/signature"
 	"github.com/containers/image/v5/transports/alltransports"
 	"github.com/containers/image/v5/types"
+	"github.com/go-jose/go-jose/v4/json"
 	"github.com/vincent-vinf/image-tool/pkg/utils"
 )
 
@@ -165,7 +168,7 @@ func copyImage(ctx context.Context, src, dst ImageNode) error {
 	return nil
 }
 
-func CheckImageTar(ctx context.Context, tarPath string) error {
+func CheckImageTar(ctx context.Context, tarPath string, os, arch string) error {
 	srcRef, err := alltransports.ParseImageName(tarImageKey(tarPath))
 	if err != nil {
 		return err
@@ -174,10 +177,49 @@ func CheckImageTar(ctx context.Context, tarPath string) error {
 	if err != nil {
 		return err
 	}
-	_, _, err = img.GetManifest(ctx, nil)
+	manifestBytes, manifestType, err := img.GetManifest(ctx, nil)
 	if err != nil {
 		return err
 	}
+	if os == "" || arch == "" {
+		return nil
+	}
+
+	if manifestType != manifest.DockerV2Schema2MediaType {
+		return fmt.Errorf("unsupported manifest type: %s", manifestType)
+	}
+	m, err := manifest.FromBlob(manifestBytes, manifestType)
+	if err != nil {
+		return err
+	}
+	ms := m.(*manifest.Schema2)
+	p := &platform{}
+	_, err = ms.Inspect(func(info types.BlobInfo) ([]byte, error) {
+		configBlob, _, err := img.GetBlob(ctx, info, nil)
+		if err != nil {
+			return nil, err
+		}
+		defer configBlob.Close()
+		all, err := io.ReadAll(configBlob)
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.Unmarshal(all, p)
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	})
+	//logger.Infof("%s/%s", p.OS, p.Arch)
+	if p.OS != os || p.Arch != arch {
+		return fmt.Errorf("unmatch platform: %s/%s", p.OS, p.Arch)
+	}
 
 	return nil
+}
+
+type platform struct {
+	OS   string `json:"os"`
+	Arch string `json:"architecture"`
 }
